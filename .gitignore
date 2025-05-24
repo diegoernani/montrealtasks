@@ -1,0 +1,8 @@
+*.dproj
+*.local
+Service/TasksService.identcache
+*.~1~
+*.~2~
+*.~3~
+*.exe
+*.res
