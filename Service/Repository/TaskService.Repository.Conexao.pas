@@ -29,8 +29,8 @@ begin
       FConexao.Connect;
     except
       on E: Exception do
-        raise Exception.CreateFmt('Erro ao conectar no banco %s em %s:%d - %s',
-          [FConexao.Database, FConexao.HostName, FConexao.Port, E.Message]);
+        raise Exception.CreateFmt('Erro ao conectar no banco %s em %s:%d - %s com DLL %s',
+          [FConexao.Database, FConexao.HostName, FConexao.Port, FConexao.LibraryLocation, E.Message]);
     end;
   end;
   Result := FConexao;

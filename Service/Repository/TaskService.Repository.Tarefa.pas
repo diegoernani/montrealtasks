@@ -3,9 +3,12 @@ unit TaskService.Repository.Tarefa;
 interface
 
 uses
-  System.JSON;
+  System.JSON, TaskService.Model.Tarefa;
 
 function GetAllTarefasAsJSONArray: TJSONArray;
+procedure InsertTarefaRepository(const ATarefa: TTarefa);
+procedure UpdateTarefaStatus(const AId: Integer; const AStatus: string);
+procedure DeleteTarefaRepository(const AId: Integer);
 
 implementation
 
@@ -35,6 +38,64 @@ begin
     LQuery.Free;
   end;
 end;
+
+procedure InsertTarefaRepository(const ATarefa: TTarefa);
+var
+  LQuery: TZQuery;
+begin
+  LQuery := TZQuery.Create(nil);
+  try
+    LQuery.Connection := GetConnection;
+    LQuery.SQL.Text := 'INSERT INTO Tarefas (Descricao, Status, Prioridade, DataCriacao, DataConclusao) ' +
+                       'VALUES (:Descricao, :Status, :Prioridade, :DataCriacao, :DataConclusao)';
+
+    LQuery.ParamByName('Descricao').AsString := ATarefa.Descricao;
+    LQuery.ParamByName('Status').AsString := ATarefa.Status;
+    LQuery.ParamByName('Prioridade').AsInteger := ATarefa.Prioridade;
+    LQuery.ParamByName('DataCriacao').AsDateTime := ATarefa.DataCriacao;
+    LQuery.ParamByName('DataConclusao').AsDateTime := ATarefa.DataConclusao;
+
+    LQuery.ExecSQL;
+  finally
+    LQuery.Free;
+  end;
+end;
+
+procedure UpdateTarefaStatus(const AId: Integer; const AStatus: string);
+var
+  LQuery: TZQuery;
+begin
+  LQuery := TZQuery.Create(nil);
+  try
+    LQuery.Connection := GetConnection;
+    LQuery.SQL.Text := 'UPDATE Tarefas SET Status = :Status WHERE Id = :Id';
+
+    LQuery.ParamByName('Status').AsString := AStatus;
+    LQuery.ParamByName('Id').AsInteger := AId;
+
+    LQuery.ExecSQL;
+  finally
+    LQuery.Free;
+  end;
+end;
+
+procedure DeleteTarefaRepository(const AId: Integer);
+var
+  LQuery: TZQuery;
+begin
+  LQuery := TZQuery.Create(nil);
+  try
+    LQuery.Connection := GetConnection;
+    LQuery.SQL.Text := 'DELETE FROM Tarefas WHERE Id = :Id';
+
+    LQuery.ParamByName('Id').AsInteger := AId;
+
+    LQuery.ExecSQL;
+  finally
+    LQuery.Free;
+  end;
+end;
+
 
 end.
 
