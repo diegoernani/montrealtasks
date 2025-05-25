@@ -32,9 +32,9 @@ end;
 procedure RegisterTarefaRoutes;
 begin
   THorse.Get('/tarefas', GetAllTarefas);
-//  THorse.Post('/tarefas', InsertTarefa);
-  // THorse.Put('/tarefas/:id/status', UpdateTarefa);
-  // THorse.Delete('/tarefas/:id', DeleteTarefa);
+  THorse.Post('/tarefas', InsertTarefa);
+  THorse.Put('/tarefas/:id/status', UpdateTarefa);
+  THorse.Delete('/tarefas/:id', DeleteTarefa);
 end;
 
 end.
