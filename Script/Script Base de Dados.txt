@@ -1,0 +1,28 @@
+-- Criação do banco de dados
+CREATE DATABASE Montreal;
+GO
+
+-- Seleção do banco
+USE Montreal;
+GO
+
+-- Criação da tabela Tarefas
+CREATE TABLE Tarefas (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    Descricao NVARCHAR(255) NOT NULL,
+    Status NVARCHAR(50) NOT NULL,  -- 'Pendente' ou 'Concluída'
+    Prioridade INT NOT NULL,
+    DataCriacao DATETIME NOT NULL DEFAULT GETDATE(),
+    DataConclusao DATETIME NULL
+);
+GO
+
+-- Inserts de dados de exemplo
+INSERT INTO Tarefas (Descricao, Status, Prioridade)
+VALUES 
+('Implementar serviço REST', 'Pendente', 3),
+('Desenvolver cliente VCL', 'Pendente', 2),
+('Testar integração', 'Concluída', 1),
+('Escrever README.md', 'Concluída', 2),
+('Gerar script SQL', 'Pendente', 1);
+GO
