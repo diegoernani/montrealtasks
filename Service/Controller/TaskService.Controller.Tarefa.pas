@@ -58,6 +58,7 @@ var
   AId: Integer;
   AJSON: TJSONObject;
   AStatus: string;
+  LStatusVerifica: string;
 begin
   AId := StrToIntDef(Req.Params['id'], 0);
   if AId = 0 then
@@ -70,6 +71,13 @@ begin
   if not AJSON.TryGetValue<string>('Status', AStatus) then
   begin
     Res.Status(400).Send('Status não informado');
+    raise EHorseCallbackInterrupted.Create();
+  end;
+
+  LStatusVerifica := AJSON.GetValue<string>('Status');
+  if not (SameText(LStatusVerifica, 'Concluída') or SameText(LStatusVerifica, 'Pendente')) then
+  begin
+    Res.Status(400).Send('Status inválido. Use "Concluída" ou "Pendente".');
     raise EHorseCallbackInterrupted.Create();
   end;
 
