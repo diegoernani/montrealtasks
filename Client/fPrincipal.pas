@@ -5,7 +5,8 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.WinXPanels, Vcl.StdCtrls,
-  System.Skia, Vcl.Skia;
+  System.Skia, Vcl.Skia, TaskService.Client.Service.Tarefa.Interfaces,
+  TaskService.Client.Service.Tarefa.REST4D;
 
 type
   TForm1 = class(TForm)
@@ -73,6 +74,7 @@ type
     procedure FormCreate(Sender: TObject);
   private
     { Private declarations }
+    FClient: ITaskServiceClient;
     procedure CarregarTarefas;
     procedure AtualizarEstatisticas;
   public
@@ -86,7 +88,6 @@ implementation
 
 uses
   System.JSON,
-  TaskService.Client.Service.Tarefa,
   System.UITypes,
   System.Generics.Collections;
 
@@ -124,43 +125,40 @@ end;
 
 procedure TForm1.CarregarTarefas;
 var
-  LClient: TTaskServiceClient;
   Tarefas: TJSONArray;
   TarefaObj: TJSONObject;
   i: Integer;
   Item: TListItem;
 begin
-  LClient := TTaskServiceClient.Create('http://localhost:9000/', 'montrealtoken');
+
+
+  Tarefas := FClient.GetTarefas;
   try
-    Tarefas := LClient.GetTarefas;
-    try
-      ListView1.Items.Clear;
+    ListView1.Items.Clear;
 
-      for i := 0 to Tarefas.Count - 1 do
-      begin
-        TarefaObj := Tarefas.Items[i] as TJSONObject;
+    for i := 0 to Tarefas.Count - 1 do
+    begin
+      TarefaObj := Tarefas.Items[i] as TJSONObject;
 
-        Item := ListView1.Items.Add;
-        Item.Caption := TarefaObj.GetValue<string>('Id');
-        Item.SubItems.Add(TarefaObj.GetValue<string>('Descricao'));
-        Item.SubItems.Add(TarefaObj.GetValue<string>('Status'));
-        Item.SubItems.Add(TarefaObj.GetValue<string>('Prioridade'));
-        Item.SubItems.Add(DateTimeToStr(TarefaObj.GetValue<TDateTime>('DataCriacao')));
+      Item := ListView1.Items.Add;
+      Item.Caption := TarefaObj.GetValue<string>('Id');
+      Item.SubItems.Add(TarefaObj.GetValue<string>('Descricao'));
+      Item.SubItems.Add(TarefaObj.GetValue<string>('Status'));
+      Item.SubItems.Add(TarefaObj.GetValue<string>('Prioridade'));
+      Item.SubItems.Add(DateTimeToStr(TarefaObj.GetValue<TDateTime>('DataCriacao')));
 
-        if not TarefaObj.GetValue<String>('DataConclusao').IsEmpty and (TarefaObj.GetValue<TDateTime>('DataConclusao') > 0) then
-          Item.SubItems.Add(DateTimeToStr(TarefaObj.GetValue<TDateTime>('DataConclusao')));
-      end;
-
-    finally
-      Tarefas.Free;
+      if not TarefaObj.GetValue<String>('DataConclusao').IsEmpty and (TarefaObj.GetValue<TDateTime>('DataConclusao') > 0) then
+        Item.SubItems.Add(DateTimeToStr(TarefaObj.GetValue<TDateTime>('DataConclusao')));
     end;
+
   finally
-    LClient.Free;
+    Tarefas.Free;
   end;
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
+  FClient := TTaskServiceClientREST4D.Create('http://localhost:9000/', 'montrealtoken');
   CarregarTarefas;
   AtualizarEstatisticas;
 end;
@@ -172,41 +170,34 @@ end;
 
 procedure TForm1.botaoOkClick(Sender: TObject);
 var
-  LCliente: TTaskServiceClient;
   TarefaJSON: TJSONObject;
   Id: Integer;
 begin
-  LCliente := TTaskServiceClient.Create('http://localhost:9000/', 'montrealtoken');
-  try
-    if edID.Text = '' then
-    begin
-      // Inserção
-      TarefaJSON := TJSONObject.Create;
-      try
-        TarefaJSON.AddPair('Descricao', edDescricao.Text);
-        TarefaJSON.AddPair('Status', cdStatus.Text);
-        TarefaJSON.AddPair('Prioridade', TJSONNumber.Create(StrToIntDef(edPrioridade.Text, 1)));
+  if edID.Text = '' then
+  begin
+    // Inserção
+    TarefaJSON := TJSONObject.Create;
+    try
+      TarefaJSON.AddPair('Descricao', edDescricao.Text);
+      TarefaJSON.AddPair('Status', cdStatus.Text);
+      TarefaJSON.AddPair('Prioridade', TJSONNumber.Create(StrToIntDef(edPrioridade.Text, 1)));
 
-        LCliente.AddTarefa(TarefaJSON);
-        ShowMessage('Tarefa adicionada com sucesso.');
-      finally
-        TarefaJSON.Free;
-      end;
-    end
-    else
-    begin
-      // Edição → só Status
-      Id := StrToIntDef(edID.Text, 0);
-      LCliente.UpdateTarefaStatus(Id, cdStatus.Text);
-      ShowMessage('Status atualizado.');
+      FClient.AddTarefa(TarefaJSON);
+      ShowMessage('Tarefa adicionada com sucesso.');
+    finally
+      TarefaJSON.Free;
     end;
-
-    CarregarTarefas;
-    PageControl1.ActivePage := tbMinhasTarefas;
-
-  finally
-    LCliente.Free;
+  end
+  else
+  begin
+    // Edição → só Status
+    Id := StrToIntDef(edID.Text, 0);
+    FClient.UpdateTarefaStatus(Id, cdStatus.Text);
+    ShowMessage('Status atualizado.');
   end;
+
+  CarregarTarefas;
+  PageControl1.ActivePage := tbMinhasTarefas;
 end;
 
 procedure TForm1.lbEditarTarefaClick(Sender: TObject);
@@ -238,27 +229,21 @@ procedure TForm1.lbExcluirTarefaClick(Sender: TObject);
 var
   SelectedItem: TListItem;
   Id: Integer;
-  LCliente: TTaskServiceClient;
 begin
-  LCliente := TTaskServiceClient.Create('http://localhost:9000/', 'montrealtoken');
-  try
-    SelectedItem := ListView1.Selected;
-    if not Assigned(SelectedItem) then
-    begin
-      ShowMessage('Selecione uma tarefa para excluir.');
-      Exit;
-    end;
+  SelectedItem := ListView1.Selected;
+  if not Assigned(SelectedItem) then
+  begin
+    ShowMessage('Selecione uma tarefa para excluir.');
+    Exit;
+  end;
 
-    Id := StrToIntDef(SelectedItem.Caption, 0);
+  Id := StrToIntDef(SelectedItem.Caption, 0);
 
-    if MessageDlg('Deseja excluir a tarefa?', mtConfirmation, [mbYes, mbNo], 0) = mrYes then
-    begin
-      LCliente.DeleteTarefa(Id);
-      ShowMessage('Tarefa excluída.');
-      CarregarTarefas;
-    end;
-  finally
-    LCliente.Free;
+  if MessageDlg('Deseja excluir a tarefa?', mtConfirmation, [mbYes, mbNo], 0) = mrYes then
+  begin
+    FClient.DeleteTarefa(Id);
+    ShowMessage('Tarefa excluída.');
+    CarregarTarefas;
   end;
 end;
 
@@ -281,41 +266,35 @@ end;
 procedure TForm1.AtualizarEstatisticas;
 var
   TotalJSON, MediaJSON, ConcluidasJSON: TJSONObject;
-LCliente: TTaskServiceClient;
 begin
-  LCliente := TTaskServiceClient.Create('http://localhost:9000/', 'montrealtoken');
   try
+    // Total de Tarefas
+    TotalJSON := FClient.GetEstatistica('tarefas/total');
     try
-      // Total de Tarefas
-      TotalJSON := LCliente.GetEstatistica('tarefas/total');
-      try
-        lbTotalTarefas.Caption := TotalJSON.GetValue<string>('resultado');
-      finally
-        TotalJSON.Free;
-      end;
-
-      // Média de Prioridade Pendentes
-      MediaJSON := LCliente.GetEstatistica('tarefas/media-prioridade-pendentes');
-      try
-        lbMediaPrioridade.Caption := MediaJSON.GetValue<string>('resultado');
-      finally
-        MediaJSON.Free;
-      end;
-
-      // Concluídas nos últimos 7 dias
-      ConcluidasJSON := LCliente.GetEstatistica('tarefas/concluidas-7-dias');
-      try
-        lbConcluida7Dias.Caption := ConcluidasJSON.GetValue<string>('resultado');
-      finally
-        ConcluidasJSON.Free;
-      end;
-
-    except
-      on E: Exception do
-        ShowMessage('Erro ao atualizar estatísticas: ' + E.Message);
+      lbTotalTarefas.Caption := TotalJSON.GetValue<string>('resultado');
+    finally
+      TotalJSON.Free;
     end;
-  finally
-    LCliente.Free;
+
+    // Média de Prioridade Pendentes
+    MediaJSON := FClient.GetEstatistica('tarefas/media-prioridade-pendentes');
+    try
+      lbMediaPrioridade.Caption := MediaJSON.GetValue<string>('resultado');
+    finally
+      MediaJSON.Free;
+    end;
+
+    // Concluídas nos últimos 7 dias
+    ConcluidasJSON := FClient.GetEstatistica('tarefas/concluidas-7-dias');
+    try
+      lbConcluida7Dias.Caption := ConcluidasJSON.GetValue<string>('resultado');
+    finally
+      ConcluidasJSON.Free;
+    end;
+
+  except
+    on E: Exception do
+      ShowMessage('Erro ao atualizar estatísticas: ' + E.Message);
   end;
 end;
 
