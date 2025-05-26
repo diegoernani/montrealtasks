@@ -19,7 +19,7 @@ function GetConnection: TZConnection;
 begin
   if not Assigned(FConexao) then
   begin
-    FConexao := TZConnection.Create(nil);
+    FConexao := TConnectionFactory.CreateConnection;
     FConexao.Protocol := 'mssql';
     FConexao.LibraryLocation := 'C:\Users\Diego\Desktop\Montreal Tasks\Service\DLL\sybdb.dll';
     FConexao.HostName := '127.0.0.1';
