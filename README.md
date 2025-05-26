@@ -169,7 +169,6 @@ Authorization: montrealtoken
 
 - Autenticação com **JWT**.
 - Configuração de **CORS**.
-- Criação de **docker-compose** para facilitar setup.
 - Implementar **log** e **tratamento global de exceções**.
 
 ## ✅ Contato
