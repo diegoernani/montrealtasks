@@ -316,7 +316,7 @@ object Form1: TForm1
     Top = 113
     Width = 615
     Height = 387
-    ActivePage = tbEdicao
+    ActivePage = tbMinhasTarefas
     Align = alClient
     MultiLine = True
     TabOrder = 3
@@ -569,7 +569,6 @@ object Form1: TForm1
           ParentFont = False
           Transparent = True
           Layout = tlCenter
-          ExplicitTop = 112
           ExplicitWidth = 87
         end
         object lbTotalTarefas: TLabel
@@ -621,7 +620,6 @@ object Form1: TForm1
           ParentFont = False
           Transparent = True
           Layout = tlCenter
-          ExplicitTop = 112
           ExplicitWidth = 156
         end
         object lbMediaPrioridade: TLabel
@@ -673,8 +671,7 @@ object Form1: TForm1
           ParentFont = False
           Transparent = True
           Layout = tlCenter
-          ExplicitLeft = 96
-          ExplicitTop = 74
+          ExplicitWidth = 136
         end
         object lbConcluida7Dias: TLabel
           Left = 0
