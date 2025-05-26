@@ -26,7 +26,6 @@ object Form1: TForm1
     BevelOuter = bvNone
     ParentBackground = False
     TabOrder = 0
-    ExplicitWidth = 624
     object pTitulo: TPanel
       Left = 0
       Top = 0
@@ -37,8 +36,6 @@ object Form1: TForm1
       Color = clWhite
       ParentBackground = False
       TabOrder = 0
-      ExplicitTop = -6
-      ExplicitWidth = 768
       object Label5: TLabel
         Left = 0
         Top = 0
@@ -69,9 +66,6 @@ object Form1: TForm1
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitTop = 0
-      ExplicitWidth = 768
-      ExplicitHeight = 64
       object btAtualizar: TPanel
         Left = 555
         Top = 0
@@ -82,8 +76,6 @@ object Form1: TForm1
         Color = 135
         ParentBackground = False
         TabOrder = 0
-        ExplicitLeft = 344
-        ExplicitWidth = 213
         object botaoAtualizar: TLabel
           Left = 0
           Top = 0
@@ -123,7 +115,6 @@ object Form1: TForm1
         ParentBackground = False
         ParentFont = False
         TabOrder = 1
-        ExplicitLeft = 336
         object botaoEstatistica: TLabel
           Left = 0
           Top = 0
@@ -157,7 +148,6 @@ object Form1: TForm1
         Color = clWhite
         ParentBackground = False
         TabOrder = 2
-        ExplicitLeft = 336
         object botaoTarefas: TLabel
           Left = 0
           Top = 0
@@ -191,7 +181,6 @@ object Form1: TForm1
         Color = clWhite
         ParentBackground = False
         TabOrder = 3
-        ExplicitLeft = 336
         object Label8: TLabel
           Left = 0
           Top = 0
@@ -226,9 +215,6 @@ object Form1: TForm1
     Color = clDimgray
     ParentBackground = False
     TabOrder = 1
-    ExplicitLeft = 583
-    ExplicitTop = 119
-    ExplicitHeight = 355
     object SkSvg1: TSkSvg
       Left = 40
       Top = 128
@@ -292,8 +278,6 @@ object Form1: TForm1
       Color = 135
       ParentBackground = False
       TabOrder = 0
-      ExplicitTop = 335
-      ExplicitWidth = 768
       object Label1: TLabel
         Left = 0
         Top = 0
@@ -332,7 +316,7 @@ object Form1: TForm1
     Top = 113
     Width = 615
     Height = 387
-    ActivePage = tbMinhasTarefas
+    ActivePage = tbEdicao
     Align = alClient
     MultiLine = True
     TabOrder = 3
@@ -427,7 +411,6 @@ object Form1: TForm1
         Color = 135
         ParentBackground = False
         TabOrder = 1
-        ExplicitLeft = 252
         object lbEditarTarefa: TLabel
           Left = 0
           Top = 0
@@ -462,7 +445,6 @@ object Form1: TForm1
         Color = 135
         ParentBackground = False
         TabOrder = 2
-        ExplicitLeft = 367
         object lbExcluirTarefa: TLabel
           Left = 0
           Top = 0
@@ -497,7 +479,6 @@ object Form1: TForm1
         Color = clPeru
         ParentBackground = False
         TabOrder = 3
-        ExplicitLeft = 482
         object Label11: TLabel
           Left = 0
           Top = 0
@@ -518,7 +499,8 @@ object Form1: TForm1
           Transparent = True
           Layout = tlCenter
           OnClick = Label11Click
-          ExplicitLeft = 1
+          ExplicitWidth = 18
+          ExplicitHeight = 12
         end
       end
       object Panel10: TPanel
@@ -531,7 +513,6 @@ object Form1: TForm1
         Color = 135
         ParentBackground = False
         TabOrder = 4
-        ExplicitLeft = 137
         object lbInserirTarefa: TLabel
           Left = 0
           Top = 0
@@ -558,6 +539,7 @@ object Form1: TForm1
       end
     end
     object tbEstatistica: TTabSheet
+      Caption = 'tbEstatistica'
       ImageIndex = 1
       TabVisible = False
       object Panel11: TPanel
@@ -571,9 +553,9 @@ object Form1: TForm1
         TabOrder = 0
         object Label13: TLabel
           Left = 0
-          Top = 112
+          Top = 138
           Width = 177
-          Height = 41
+          Height = 15
           Align = alBottom
           Alignment = taCenter
           Caption = 'Total de Tarefas'
@@ -587,12 +569,14 @@ object Form1: TForm1
           ParentFont = False
           Transparent = True
           Layout = tlCenter
+          ExplicitTop = 112
+          ExplicitWidth = 87
         end
         object lbTotalTarefas: TLabel
           Left = 0
           Top = 0
           Width = 177
-          Height = 112
+          Height = 138
           Align = alClient
           Alignment = taCenter
           Caption = '4'
@@ -621,9 +605,9 @@ object Form1: TForm1
         TabOrder = 1
         object Label14: TLabel
           Left = 0
-          Top = 112
+          Top = 138
           Width = 177
-          Height = 41
+          Height = 15
           Align = alBottom
           Alignment = taCenter
           Caption = 'Media Prioridade Pendentes'
@@ -637,12 +621,14 @@ object Form1: TForm1
           ParentFont = False
           Transparent = True
           Layout = tlCenter
+          ExplicitTop = 112
+          ExplicitWidth = 156
         end
         object lbMediaPrioridade: TLabel
           Left = 0
           Top = 0
           Width = 177
-          Height = 112
+          Height = 138
           Align = alClient
           Alignment = taCenter
           Caption = '2.5'
@@ -656,7 +642,8 @@ object Form1: TForm1
           ParentFont = False
           Transparent = True
           Layout = tlCenter
-          ExplicitTop = -6
+          ExplicitWidth = 72
+          ExplicitHeight = 67
         end
       end
       object Panel13: TPanel
@@ -668,11 +655,11 @@ object Form1: TForm1
         Color = 135
         ParentBackground = False
         TabOrder = 2
-        object lbConcluida7Dias: TLabel
+        object lb3: TLabel
           Left = 0
-          Top = 112
+          Top = 138
           Width = 177
-          Height = 41
+          Height = 15
           Align = alBottom
           Alignment = taCenter
           Caption = 'Conclu'#237'das '#250'ltimos 7 dias'
@@ -686,12 +673,14 @@ object Form1: TForm1
           ParentFont = False
           Transparent = True
           Layout = tlCenter
+          ExplicitLeft = 96
+          ExplicitTop = 74
         end
-        object Label17: TLabel
+        object lbConcluida7Dias: TLabel
           Left = 0
           Top = 0
           Width = 177
-          Height = 112
+          Height = 138
           Align = alClient
           Alignment = taCenter
           Caption = '4'
@@ -705,8 +694,6 @@ object Form1: TForm1
           ParentFont = False
           Transparent = True
           Layout = tlCenter
-          ExplicitLeft = 68
-          ExplicitTop = 29
           ExplicitWidth = 29
           ExplicitHeight = 67
         end
@@ -719,6 +706,78 @@ object Form1: TForm1
       DesignSize = (
         607
         379)
+      object Label2: TLabel
+        Left = 40
+        Top = 11
+        Width = 14
+        Height = 15
+        Alignment = taCenter
+        Caption = 'Id:'
+        Color = clWhite
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -12
+        Font.Name = 'Segoe UI'
+        Font.Style = [fsBold]
+        ParentColor = False
+        ParentFont = False
+        Transparent = True
+        Layout = tlCenter
+      end
+      object Label4: TLabel
+        Left = 133
+        Top = 11
+        Width = 57
+        Height = 15
+        Alignment = taCenter
+        Caption = 'Descri'#231#227'o:'
+        Color = clWhite
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -12
+        Font.Name = 'Segoe UI'
+        Font.Style = [fsBold]
+        ParentColor = False
+        ParentFont = False
+        Transparent = True
+        Layout = tlCenter
+      end
+      object Label6: TLabel
+        Left = 40
+        Top = 61
+        Width = 38
+        Height = 15
+        Alignment = taCenter
+        Caption = 'Status:'
+        Color = clWhite
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -12
+        Font.Name = 'Segoe UI'
+        Font.Style = [fsBold]
+        ParentColor = False
+        ParentFont = False
+        Transparent = True
+        Layout = tlCenter
+      end
+      object Label7: TLabel
+        Left = 213
+        Top = 61
+        Width = 60
+        Height = 15
+        Alignment = taCenter
+        Caption = 'Prioridade:'
+        Color = clWhite
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -12
+        Font.Name = 'Segoe UI'
+        Font.Style = [fsBold]
+        ParentColor = False
+        ParentFont = False
+        Transparent = True
+        Layout = tlCenter
+      end
       object Panel14: TPanel
         Left = 491
         Top = 332
@@ -729,7 +788,7 @@ object Form1: TForm1
         Color = clPeru
         ParentBackground = False
         TabOrder = 0
-        object botaoFechar: TLabel
+        object botaoCancel: TLabel
           Left = 0
           Top = 0
           Width = 110
@@ -737,7 +796,7 @@ object Form1: TForm1
           Align = alClient
           Alignment = taCenter
           Anchors = [akTop, akRight, akBottom]
-          Caption = 'Sair'
+          Caption = 'Cancelar'
           Color = clWhite
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWhite
@@ -748,8 +807,8 @@ object Form1: TForm1
           ParentFont = False
           Transparent = True
           Layout = tlCenter
-          OnClick = botaoFecharClick
-          ExplicitWidth = 18
+          OnClick = botaoCancelClick
+          ExplicitWidth = 39
           ExplicitHeight = 12
         end
       end
@@ -763,7 +822,7 @@ object Form1: TForm1
         Color = 135
         ParentBackground = False
         TabOrder = 1
-        object Label19: TLabel
+        object botaoOk: TLabel
           Left = 0
           Top = 0
           Width = 110
@@ -782,10 +841,48 @@ object Form1: TForm1
           ParentFont = False
           Transparent = True
           Layout = tlCenter
-          OnClick = Label19Click
+          OnClick = botaoOkClick
           ExplicitWidth = 14
           ExplicitHeight = 12
         end
+      end
+      object edID: TEdit
+        Left = 40
+        Top = 32
+        Width = 73
+        Height = 23
+        Color = clBtnFace
+        ReadOnly = True
+        TabOrder = 2
+      end
+      object edDescricao: TEdit
+        Left = 133
+        Top = 32
+        Width = 396
+        Height = 23
+        TabOrder = 3
+      end
+      object edPrioridade: TEdit
+        Left = 213
+        Top = 82
+        Width = 121
+        Height = 23
+        MaxLength = 5
+        NumbersOnly = True
+        TabOrder = 4
+        TextHint = 'Prioridade (1-5)'
+      end
+      object cdStatus: TComboBox
+        Left = 40
+        Top = 82
+        Width = 145
+        Height = 23
+        ItemIndex = 0
+        TabOrder = 5
+        Text = 'Pendente'
+        Items.Strings = (
+          'Pendente'
+          'Conclu'#237'do')
       end
     end
   end

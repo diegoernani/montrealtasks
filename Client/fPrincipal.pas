@@ -1,10 +1,11 @@
-unit fPrincipal;
+﻿unit fPrincipal;
 
 interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.WinXPanels, Vcl.StdCtrls, System.Skia, Vcl.Skia;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.WinXPanels, Vcl.StdCtrls,
+  System.Skia, Vcl.Skia;
 
 type
   TForm1 = class(TForm)
@@ -46,18 +47,26 @@ type
     Label14: TLabel;
     lbMediaPrioridade: TLabel;
     Panel13: TPanel;
+    lb3: TLabel;
     lbConcluida7Dias: TLabel;
-    Label17: TLabel;
     Panel14: TPanel;
-    botaoFechar: TLabel;
+    botaoCancel: TLabel;
     Panel15: TPanel;
-    Label19: TLabel;
+    botaoOk: TLabel;
+    edID: TEdit;
+    edDescricao: TEdit;
+    edPrioridade: TEdit;
+    Label2: TLabel;
+    Label4: TLabel;
+    cdStatus: TComboBox;
+    Label6: TLabel;
+    Label7: TLabel;
     procedure botaoAtualizarClick(Sender: TObject);
-    procedure botaoFecharClick(Sender: TObject);
+    procedure botaoCancelClick(Sender: TObject);
     procedure botaoTarefasClick(Sender: TObject);
     procedure botaoEstatisticaClick(Sender: TObject);
     procedure Label11Click(Sender: TObject);
-    procedure Label19Click(Sender: TObject);
+    procedure botaoOkClick(Sender: TObject);
     procedure lbInserirTarefaClick(Sender: TObject);
     procedure lbEditarTarefaClick(Sender: TObject);
     procedure lbExcluirTarefaClick(Sender: TObject);
@@ -65,6 +74,7 @@ type
   private
     { Private declarations }
     procedure CarregarTarefas;
+    procedure AtualizarEstatisticas;
   public
     { Public declarations }
   end;
@@ -75,29 +85,40 @@ var
 implementation
 
 uses
-  System.JSON, TaskService.Client.Service.Tarefa;
+  System.JSON,
+  TaskService.Client.Service.Tarefa,
+  System.UITypes,
+  System.Generics.Collections;
 
 {$R *.dfm}
 
 procedure TForm1.botaoAtualizarClick(Sender: TObject);
 begin
   CarregarTarefas;
+  AtualizarEstatisticas;
   PageControl1.ActivePage := tbMinhasTarefas;
 end;
 
 procedure TForm1.botaoEstatisticaClick(Sender: TObject);
 begin
+  AtualizarEstatisticas;
   PageControl1.ActivePage := tbEstatistica;
 end;
 
-procedure TForm1.botaoFecharClick(Sender: TObject);
+procedure TForm1.botaoCancelClick(Sender: TObject);
 begin
-  //limpar campos e voltar a listagem
+  // Limpa e volta
+  edID.Text := '';
+  edDescricao.Text := '';
+  cdStatus.Text := '';
+  edPrioridade.Text := '';
+
   PageControl1.ActivePage := tbMinhasTarefas;
 end;
 
 procedure TForm1.botaoTarefasClick(Sender: TObject);
 begin
+  AtualizarEstatisticas;
   PageControl1.ActivePage := tbMinhasTarefas;
 end;
 
@@ -141,6 +162,7 @@ end;
 procedure TForm1.FormCreate(Sender: TObject);
 begin
   CarregarTarefas;
+  AtualizarEstatisticas;
 end;
 
 procedure TForm1.Label11Click(Sender: TObject);
@@ -148,40 +170,68 @@ begin
   Close;
 end;
 
-procedure TForm1.Label19Click(Sender: TObject);
+procedure TForm1.botaoOkClick(Sender: TObject);
+var
+  LCliente: TTaskServiceClient;
+  TarefaJSON: TJSONObject;
+  Id: Integer;
 begin
-  //gravar na api
-  PageControl1.ActivePage := tbMinhasTarefas;
+  LCliente := TTaskServiceClient.Create('http://localhost:9000/', 'montrealtoken');
+  try
+    if edID.Text = '' then
+    begin
+      // Inserção
+      TarefaJSON := TJSONObject.Create;
+      try
+        TarefaJSON.AddPair('Descricao', edDescricao.Text);
+        TarefaJSON.AddPair('Status', cdStatus.Text);
+        TarefaJSON.AddPair('Prioridade', TJSONNumber.Create(StrToIntDef(edPrioridade.Text, 1)));
+
+        LCliente.AddTarefa(TarefaJSON);
+        ShowMessage('Tarefa adicionada com sucesso.');
+      finally
+        TarefaJSON.Free;
+      end;
+    end
+    else
+    begin
+      // Edição → só Status
+      Id := StrToIntDef(edID.Text, 0);
+      LCliente.UpdateTarefaStatus(Id, cdStatus.Text);
+      ShowMessage('Status atualizado.');
+    end;
+
+    CarregarTarefas;
+    PageControl1.ActivePage := tbMinhasTarefas;
+
+  finally
+    LCliente.Free;
+  end;
 end;
 
 procedure TForm1.lbEditarTarefaClick(Sender: TObject);
 var
   SelectedItem: TListItem;
-  Id: Integer;
-  NovoStatus: string;
-  LCliente: TTaskServiceClient;
 begin
-  LCliente := TTaskServiceClient.Create('http://localhost:9000/', 'montrealtoken');
-  try
-    SelectedItem := ListView1.Selected;
-    if not Assigned(SelectedItem) then
-    begin
-      ShowMessage('Selecione uma tarefa para editar.');
-      Exit;
-    end;
-
-    Id := StrToIntDef(SelectedItem.Caption, 0); // Ajuste se o Id estiver na SubItem ou Tag
-    NovoStatus := InputBox('Editar Status', 'Novo Status:', SelectedItem.SubItems[1]);
-
-    if NovoStatus <> '' then
-    begin
-      LCliente.UpdateTarefaStatus(Id, NovoStatus);
-      ShowMessage('Status atualizado!');
-      CarregarTarefas;
-    end;
-  finally
-    LCliente.Free;
+  SelectedItem := ListView1.Selected;
+  if not Assigned(SelectedItem) then
+  begin
+    ShowMessage('Selecione uma tarefa para editar.');
+    Exit;
   end;
+
+  // Preenche os campos
+  edID.Text := SelectedItem.Caption;
+  edDescricao.Text := SelectedItem.SubItems[0];   // Descricao
+  cdStatus.Text := SelectedItem.SubItems[1];      // Status
+  edPrioridade.Text := SelectedItem.SubItems[2];  // Prioridade
+
+  // Apenas Status habilitado
+  edDescricao.Enabled := False;
+  edPrioridade.Enabled := False;
+  cdStatus.Enabled := True;
+
+  PageControl1.ActivePage := tbEdicao;
 end;
 
 procedure TForm1.lbExcluirTarefaClick(Sender: TObject);
@@ -199,12 +249,12 @@ begin
       Exit;
     end;
 
-    Id := StrToIntDef(SelectedItem.SubItems[0], 0);
+    Id := StrToIntDef(SelectedItem.Caption, 0);
 
     if MessageDlg('Deseja excluir a tarefa?', mtConfirmation, [mbYes, mbNo], 0) = mrYes then
     begin
       LCliente.DeleteTarefa(Id);
-      ShowMessage('Tarefa exclu�da!');
+      ShowMessage('Tarefa excluída.');
       CarregarTarefas;
     end;
   finally
@@ -213,46 +263,61 @@ begin
 end;
 
 procedure TForm1.lbInserirTarefaClick(Sender: TObject);
+begin
+// Limpa os campos
+  edID.Text := '';
+  edDescricao.Text := '';
+  cdStatus.Text := 'Pendente'; // Valor default
+  edPrioridade.Text := '1';
+
+  // Todos habilitados
+  edDescricao.Enabled := True;
+  cdStatus.Enabled := True;
+  edPrioridade.Enabled := True;
+
+  PageControl1.ActivePage := tbEdicao;
+end;
+
+procedure TForm1.AtualizarEstatisticas;
 var
-  Descricao, Status, PrioridadeStr: string;
-  Prioridade: Integer;
-  TarefaJSON: TJSONObject;
-  LCliente: TTaskServiceClient;
+  TotalJSON, MediaJSON, ConcluidasJSON: TJSONObject;
+LCliente: TTaskServiceClient;
 begin
   LCliente := TTaskServiceClient.Create('http://localhost:9000/', 'montrealtoken');
   try
-     PageControl1.ActivePage := tbEdicao;
-    Descricao := InputBox('Nova Tarefa', 'Descri��o:', '');
-    if Descricao = '' then Exit;
-
-    Status := InputBox('Nova Tarefa', 'Status (Pendente/Conclu�da):', 'Pendente');
-    if Status = '' then Exit;
-
-    PrioridadeStr := InputBox('Nova Tarefa', 'Prioridade (1-5):', '1');
-    if not TryStrToInt(PrioridadeStr, Prioridade) then
-    begin
-      ShowMessage('Prioridade inv�lida!');
-      Exit;
-    end;
-
-    TarefaJSON := TJSONObject.Create;
     try
-      TarefaJSON.AddPair('Descricao', Descricao);
-      TarefaJSON.AddPair('Status', Status);
-      TarefaJSON.AddPair('Prioridade', TJSONNumber.Create(Prioridade));
+      // Total de Tarefas
+      TotalJSON := LCliente.GetEstatistica('tarefas/total');
+      try
+        lbTotalTarefas.Caption := TotalJSON.GetValue<string>('resultado');
+      finally
+        TotalJSON.Free;
+      end;
 
-      LCliente.AddTarefa(TarefaJSON);
-      ShowMessage('Tarefa adicionada com sucesso!');
+      // Média de Prioridade Pendentes
+      MediaJSON := LCliente.GetEstatistica('tarefas/media-prioridade-pendentes');
+      try
+        lbMediaPrioridade.Caption := MediaJSON.GetValue<string>('resultado');
+      finally
+        MediaJSON.Free;
+      end;
 
-      CarregarTarefas;
-    finally
-      TarefaJSON.Free;
+      // Concluídas nos últimos 7 dias
+      ConcluidasJSON := LCliente.GetEstatistica('tarefas/concluidas-7-dias');
+      try
+        lbConcluida7Dias.Caption := ConcluidasJSON.GetValue<string>('resultado');
+      finally
+        ConcluidasJSON.Free;
+      end;
+
+    except
+      on E: Exception do
+        ShowMessage('Erro ao atualizar estatísticas: ' + E.Message);
     end;
   finally
     LCliente.Free;
   end;
 end;
-
 
 
 end.
