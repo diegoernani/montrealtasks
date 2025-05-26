@@ -1,4 +1,4 @@
-unit TaskService.Controller.Tarefa;
+Ôªøunit TaskService.Controller.Tarefa;
 
 interface
 
@@ -14,7 +14,8 @@ uses
   ZDataset,
   TaskService.Repository.Tarefa,
   TaskService.Model.Tarefa,
-  System.DateUtils;
+  System.DateUtils,
+  System.Math;
 
 procedure GetAllTarefas(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 var
@@ -22,10 +23,13 @@ var
 begin
   try
     JSONArray := GetAllTarefasAsJSONArraySQL;
-    Res.ContentType('application/json').Status(200).Send(JSONArray.ToJSON());   //Coloquei o contenttype pois meu postman n„o estava lendo corretamente o json de retorno ContentType('application/json')
+    Res.ContentType('application/json').Status(200).Send(JSONArray.ToJSON());   //Coloquei o contenttype pois meu postman n√£o estava lendo corretamente o json de retorno ContentType('application/json')
   except
     on E: Exception do
+    begin
       Res.Status(500).Send('Erro ao consultar tarefas: ' + E.Message);
+      raise EHorseCallbackInterrupted.Create();
+    end;
   end;
 end;
 
@@ -42,7 +46,10 @@ begin
     Res.Status(201).Send('Tarefa criada com sucesso.');
   except
     on E: Exception do
-      Res.Status(500).Send('Erro ao criar tarefa: ' + E.Message);
+    begin
+      Res.Status(400).Send('Erro ao criar tarefa: ' + E.Message);
+      raise EHorseCallbackInterrupted.Create();
+    end;
   end;
 end;
 
@@ -55,14 +62,14 @@ begin
   AId := StrToIntDef(Req.Params['id'], 0);
   if AId = 0 then
   begin
-    Res.Status(400).Send('ID inv·lido');
+    Res.Status(400).Send('ID inv√°lido');
     raise EHorseCallbackInterrupted.Create();
   end;
 
   AJSON := TJSONObject.ParseJSONValue(Req.Body) as TJSONObject;
   if not AJSON.TryGetValue<string>('Status', AStatus) then
   begin
-    Res.Status(400).Send('Status n„o informado');
+    Res.Status(400).Send('Status n√£o informado');
     raise EHorseCallbackInterrupted.Create();
   end;
 
@@ -71,7 +78,10 @@ begin
     Res.Status(200).Send('Tarefa atualizada com sucesso.');
   except
     on E: Exception do
+    begin
       Res.Status(500).Send('Erro ao atualizar tarefa: ' + E.Message);
+      raise EHorseCallbackInterrupted.Create();
+    end;
   end;
 end;
 
@@ -82,16 +92,19 @@ begin
   AId := StrToIntDef(Req.Params['id'], 0);
   if AId = 0 then
   begin
-    Res.Status(400).Send('ID inv·lido');
+    Res.Status(400).Send('ID inv√°lido');
     raise EHorseCallbackInterrupted.Create();
   end;
 
   try
     DeleteTarefaSQL(AId);
-    Res.Status(200).Send('Tarefa excluÌda com sucesso.');
+    Res.Status(200).Send('Tarefa exclu√≠da com sucesso.');
   except
     on E: Exception do
+    begin
       Res.Status(500).Send('Erro ao excluir tarefa: ' + E.Message);
+      raise EHorseCallbackInterrupted.Create();
+    end;
   end;
 end;
 
@@ -107,7 +120,10 @@ begin
     Res.ContentType('application/json').Status(200).Send(JSON.ToJSON);
   except
     on E: Exception do
+    begin
       Res.Status(500).Send('Erro ao consultar total de tarefas: ' + E.Message);
+      raise EHorseCallbackInterrupted.Create();
+    end;
   end;
 end;
 
@@ -119,11 +135,14 @@ begin
   try
     Media := GetMediaPrioridadePendentesSQL;
     JSON := TJSONObject.Create;
-    JSON.AddPair('resultado', TJSONNumber.Create(Media));
+    JSON.AddPair('resultado', FloatToStr(SimpleRoundTo(TJSONNumber.Create(Media).AsDouble, -1)));
     Res.ContentType('application/json').Status(200).Send(JSON.ToJSON);
   except
     on E: Exception do
-      Res.Status(500).Send('Erro ao consultar mÈdia de prioridade: ' + E.Message);
+    begin
+      Res.Status(500).Send('Erro ao consultar m√©dia de prioridade: ' + E.Message);
+      raise EHorseCallbackInterrupted.Create();
+    end;
   end;
 end;
 
@@ -139,7 +158,10 @@ begin
     Res.ContentType('application/json').Status(200).Send(JSON.ToJSON);
   except
     on E: Exception do
-      Res.Status(500).Send('Erro ao consultar tarefas concluÌdas: ' + E.Message);
+    begin
+      Res.Status(500).Send('Erro ao consultar tarefas conclu√≠das: ' + E.Message);
+      raise EHorseCallbackInterrupted.Create();
+    end;
   end;
 end;
 
@@ -147,10 +169,12 @@ end;
 procedure RegisterTarefaRoutes;
 begin
   //As rotas chamam metodos dessa classe Controller
-  // que passa pelo Model para aplicar validaÁıes e em seguida
+  // que passa pelo Model para aplicar valida√ß√µes e em seguida
   // comunica com Repository para acesso a tabela Tarefas.
+  //Todos metodos tem os tratamentos de erro que retorna√ß√£o na aplica√ß√£o client
+  //Usei o raise EHorseCallbackInterrupted.Create(); pois o horse n√£o estava enviando meu status e mensagem, depende de um middleware instalado
 
-  {Rotas padr„o}
+  {Rotas padr√£o}
   THorse.Get('/tarefas', GetAllTarefas);
   THorse.Post('/tarefas', InsertTarefa);
   THorse.Put('/tarefas/:id/status', UpdateTarefa);

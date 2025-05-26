@@ -316,7 +316,7 @@ object Form1: TForm1
     Top = 113
     Width = 615
     Height = 387
-    ActivePage = tbMinhasTarefas
+    ActivePage = tbEdicao
     Align = alClient
     MultiLine = True
     TabOrder = 3
@@ -784,7 +784,7 @@ object Form1: TForm1
         BevelOuter = bvNone
         Color = clPeru
         ParentBackground = False
-        TabOrder = 0
+        TabOrder = 1
         object botaoCancel: TLabel
           Left = 0
           Top = 0
@@ -818,7 +818,7 @@ object Form1: TForm1
         BevelOuter = bvNone
         Color = 135
         ParentBackground = False
-        TabOrder = 1
+        TabOrder = 2
         object botaoOk: TLabel
           Left = 0
           Top = 0
@@ -850,14 +850,14 @@ object Form1: TForm1
         Height = 23
         Color = clBtnFace
         ReadOnly = True
-        TabOrder = 2
+        TabOrder = 3
       end
       object edDescricao: TEdit
         Left = 133
         Top = 32
         Width = 396
         Height = 23
-        TabOrder = 3
+        TabOrder = 0
       end
       object edPrioridade: TEdit
         Left = 213
@@ -874,12 +874,11 @@ object Form1: TForm1
         Top = 82
         Width = 145
         Height = 23
-        ItemIndex = 0
         TabOrder = 5
         Text = 'Pendente'
         Items.Strings = (
           'Pendente'
-          'Conclu'#237'do')
+          'Conclu'#237'da')
       end
     end
   end

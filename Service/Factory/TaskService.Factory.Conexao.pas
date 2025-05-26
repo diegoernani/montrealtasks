@@ -26,7 +26,7 @@ begin
 
   // Aqui você pode ajustar conforme o ambiente ou carregar de um .ini
   Conn.Protocol := 'mssql';
-  Conn.LibraryLocation := 'C:\Users\Diego\Desktop\Montreal Tasks\Service\DLL\sybdb.dll';
+  Conn.LibraryLocation := ExtractFilePath(ParamStr(0)) + 'sybdb.dll';
   Conn.HostName := '127.0.0.1';
   Conn.Port := 50172;
   Conn.Database := 'Montreal';

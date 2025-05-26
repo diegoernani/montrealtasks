@@ -21,7 +21,6 @@ var
   Token: string;
 begin
   Token := Req.Headers['Authorization'];
-  Writeln('Token recebido: "' + Token + '"');
 
   if Token = '' then
   begin

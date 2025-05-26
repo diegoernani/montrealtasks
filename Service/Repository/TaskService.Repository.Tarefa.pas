@@ -1,11 +1,11 @@
-unit TaskService.Repository.Tarefa;
+﻿unit TaskService.Repository.Tarefa;
 
 interface
 
 uses
   System.JSON, TaskService.Model.Tarefa;
 
-  //Rotas padr�o
+  //Rotas padrão
   function GetAllTarefasAsJSONArraySQL: TJSONArray;
   procedure InsertTarefaSQL(const ATarefa: TTarefa);
   procedure UpdateTarefaStatusSQL(const AId: Integer; const AStatus: string);
@@ -74,9 +74,20 @@ begin
   LQuery := TZQuery.Create(nil);
   try
     LQuery.Connection := TConnectionFactory.CreateConnection;
-    LQuery.SQL.Text := 'UPDATE Tarefas SET Status = :Status WHERE Id = :Id';
 
-    LQuery.ParamByName('Status').AsString := AStatus;
+    if SameText(AStatus, 'Concluída') then
+    begin
+      LQuery.SQL.Text := 'UPDATE Tarefas SET Status = :Status, DataConclusao = :DataConclusao WHERE Id = :Id';
+      LQuery.ParamByName('Status').AsString := AStatus;
+      LQuery.ParamByName('DataConclusao').AsDateTime := Now;
+    end
+    else
+    begin
+      // Status Pendente seta a DataConclusao NULL
+      LQuery.SQL.Text := 'UPDATE Tarefas SET Status = :Status, DataConclusao = NULL WHERE Id = :Id';
+      LQuery.ParamByName('Status').AsString := AStatus;
+    end;
+
     LQuery.ParamByName('Id').AsInteger := AId;
 
     LQuery.ExecSQL;
@@ -84,6 +95,7 @@ begin
     LQuery.Free;
   end;
 end;
+
 
 procedure DeleteTarefaSQL(const AId: Integer);
 var
@@ -128,6 +140,7 @@ begin
     LQuery.Connection := TConnectionFactory.CreateConnection;
     LQuery.SQL.Text := 'SELECT AVG(CAST(Prioridade AS FLOAT)) AS MediaPrioridade FROM Tarefas WHERE Status = ''Pendente''';
     LQuery.Open;
+
     Result := LQuery.FieldByName('MediaPrioridade').AsFloat;
   finally
     LQuery.Free;
@@ -144,7 +157,7 @@ begin
     LQuery.SQL.Text :=
       'SELECT COUNT(*) AS TotalConcluidas ' +
       'FROM Tarefas ' +
-      'WHERE Status = ''Conclu�da'' ' +
+      'WHERE Status = ''Concluída'' ' +
       'AND DataConclusao >= DATEADD(DAY, -7, GETDATE())';
     LQuery.Open;
     Result := LQuery.FieldByName('TotalConcluidas').AsInteger;

@@ -12,6 +12,7 @@ type
   private
     FBaseURL: string;
     FAuthorization: string;
+    procedure CheckResponse(const AResponse: IResponse);
   public
     constructor Create(const ABaseURL, AAuthorization: string);
 
@@ -35,6 +36,12 @@ begin
   FAuthorization := AAuthorization;
 end;
 
+procedure TTaskServiceClientREST4D.CheckResponse(const AResponse: IResponse);
+begin
+  if not AResponse.StatusCode.ToString.StartsWith('2') then
+    raise Exception.Create('Erro HTTP ' + AResponse.StatusCode.ToString + ': ' + AResponse.Content);
+end;
+
 function TTaskServiceClientREST4D.GetTarefas: TJSONArray;
 var
   LResponse: IResponse;
@@ -44,42 +51,55 @@ begin
                          .AddHeader('Authorization', FAuthorization)
                          .Get;
 
+  CheckResponse(LResponse);
+
   Result := TJSONObject.ParseJSONValue(LResponse.Content) as TJSONArray;
 end;
 
 procedure TTaskServiceClientREST4D.AddTarefa(ATarefa: TJSONObject);
+var
+  LResponse: IResponse;
 begin
-  TRequest.New.BaseURL(FBaseURL)
-                  .Resource('tarefas')
-                  .AddHeader('Authorization', FAuthorization)
-                  .AddBody(ATarefa.ToJSON)
-                  .Post;
+  LResponse := TRequest.New.BaseURL(FBaseURL)
+                        .Resource('tarefas')
+                        .AddHeader('Authorization', FAuthorization)
+                        .AddBody(ATarefa.ToJSON)
+                        .Post;
+
+  CheckResponse(LResponse);
 end;
 
 procedure TTaskServiceClientREST4D.UpdateTarefaStatus(const AId: Integer; const AStatus: string);
 var
   LBody: TJSONObject;
+  LResponse: IResponse;
 begin
   LBody := TJSONObject.Create;
   try
     LBody.AddPair('Status', AStatus);
 
-    TRequest.New.BaseURL(FBaseURL)
-                    .Resource(Format('tarefas/%d/status', [AId]))
-                    .AddHeader('Authorization', FAuthorization)
-                    .AddBody(LBody.ToJSON)
-                    .Put;
+    LResponse := TRequest.New.BaseURL(FBaseURL)
+                          .Resource(Format('tarefas/%d/status', [AId]))
+                          .AddHeader('Authorization', FAuthorization)
+                          .AddBody(LBody.ToJSON)
+                          .Put;
+
+    CheckResponse(LResponse);
   finally
     LBody.Free;
   end;
 end;
 
 procedure TTaskServiceClientREST4D.DeleteTarefa(const AId: Integer);
+var
+  LResponse: IResponse;
 begin
-  TRequest.New.BaseURL(FBaseURL)
-                  .Resource(Format('tarefas/%d', [AId]))
-                  .AddHeader('Authorization', FAuthorization)
-                  .Delete;
+  LResponse := TRequest.New.BaseURL(FBaseURL)
+                          .Resource(Format('tarefas/%d', [AId]))
+                          .AddHeader('Authorization', FAuthorization)
+                          .Delete;
+
+  CheckResponse(LResponse);
 end;
 
 function TTaskServiceClientREST4D.GetEstatistica(const AResource: string): TJSONObject;
@@ -90,6 +110,8 @@ begin
                          .Resource(AResource)
                          .AddHeader('Authorization', FAuthorization)
                          .Get;
+
+  CheckResponse(LResponse);
 
   Result := TJSONObject.ParseJSONValue(LResponse.Content) as TJSONObject;
 end;
